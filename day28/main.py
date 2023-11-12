@@ -32,9 +32,9 @@ def start_timer():
     global reps
     reps += 1
 
-    work_secs = math.floor(0.5 * 60)
-    short_break_sec = math.floor(0.5 * 60)
-    long_break_sec = math.floor(0.5 * 60)
+    work_secs = math.floor(WORK_MIN * 60)
+    short_break_sec = math.floor(SHORT_BREAK_MIN * 60)
+    long_break_sec = math.floor(LONG_BREAK_MIN * 60)
 
     if reps % 8 == 0:
         title_label.config(text="Break", fg=RED)
