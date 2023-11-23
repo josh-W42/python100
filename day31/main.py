@@ -14,7 +14,7 @@ data = pandas.read_csv("./data/french_words.csv")
 word_dict = {word: definition for word, definition in zip(data["French"], data["English"])}
 known_words = {}
 unknown_words = {key: 1 for key in data["French"]}
-current_word = random.choice(list(unknown_words.keys()))
+current_word = ""
 
 
 def handle_correct_btn() -> None:
@@ -23,7 +23,7 @@ def handle_correct_btn() -> None:
 
     - Should remove a word from the set of unknown words.
     - Should add the same word to the list of known words.
-    - Should update the view with a new word.
+    - Should Call the get_new_card function.
     """
     global current_word, unknown_words, known_words
 
@@ -34,19 +34,52 @@ def handle_correct_btn() -> None:
     unknown_words.pop(current_word)
     known_words[current_word] = 1
 
-    current_word = random.choice(list(unknown_words.keys()))
-    canvas.itemconfig(word_obj_id, text=current_word)
+    get_new_card()
 
 
 def handle_incorrect_btn() -> None:
     """
     Called when the "I DON'T know this" or "Cross" button is pressed:
 
-    - Should update the view with a new word.
+    - Call the get_new_card function.
     """
+    get_new_card()
+
+
+def get_new_card() -> None:
+    """
+    Resets the canvas to the front of another card:
+
+    - Should change the card's image to t.
+    - Should change the title of the card.
+    - Should change the current word to the english translation of it.
+    - Should trigger a "card flip" after a period of time.
+    """
+
     global current_word
     current_word = random.choice(list(unknown_words.keys()))
     canvas.itemconfig(word_obj_id, text=current_word)
+
+    canvas.itemconfig(image_obj_id, image=flashcard_front_img)
+    canvas.itemconfig(title_obj_id, text="French")
+
+    canvas.after(5000, flip_card)
+
+
+def flip_card() -> None:
+    """
+    Called after a period of time in order to "flip" the card from the front to the back.
+    This would then reveal the english translation of the first word:
+
+    - Should change the card's image.
+    - Should change the title of the card.
+    - Should change the current word to the english translation of it.
+    """
+    global current_word
+
+    canvas.itemconfig(image_obj_id, image=flashcard_back_img)
+    canvas.itemconfig(title_obj_id, text="English")
+    canvas.itemconfig(word_obj_id, text=word_dict[current_word])
 
 
 # UI Setup
@@ -65,10 +98,15 @@ cross_btn = tk.Button(image=cross_img, highlightthickness=0, background=BACKGROU
 canvas = tk.Canvas(width=800, height=526, highlightthickness=0, background=BACKGROUND_COLOR)
 
 flashcard_front_img = tk.PhotoImage(file="./images/card_front.png")
-canvas.create_image(400, 260, image=flashcard_front_img)
+flashcard_back_img = tk.PhotoImage(file="./images/card_back.png")
 
-canvas.create_text(400, 150, text="Title", font=("Ariel", 48, "italic"))
+image_obj_id = canvas.create_image(400, 260, image=flashcard_front_img)
+
+title_obj_id = canvas.create_text(400, 150, text="Title", font=("Ariel", 48, "italic"))
 word_obj_id = canvas.create_text(400, 263, text=current_word, font=("Ariel", 60, "bold"))
+
+
+get_new_card()
 
 
 canvas.grid(row=0, column=0, columnspan=2)
